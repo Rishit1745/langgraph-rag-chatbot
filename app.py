@@ -156,7 +156,7 @@ st.title("Multi Utility Chatbot")
 # displaying message history
 for message in st.session_state['message_history']:
     with st.chat_message(message['role']):
-        st.text(message['content'])
+        st.markdown(message['content'])
 
 
 
@@ -234,8 +234,18 @@ if selected_thread:
 
     temp_messages = []
     for msg in messages:
-        role = "user" if isinstance(msg, HumanMessage) else "assistant"
-        temp_messages.append({"role": role, "content": msg.content})
+        if isinstance(msg, HumanMessage):
+            role = "user"
+        elif isinstance(msg, AIMessage):
+            role = "assistant"
+        else:
+            continue  # skip ToolMessages and anything else
+        text = extract_text(msg.content)
+        if not text.strip():
+            continue  # skip AI messages that only contain tool calls
+        temp_messages.append({"role": role, "content": text})
+
+
     st.session_state["message_history"] = temp_messages
     st.session_state["ingested_docs"].setdefault(str(selected_thread), {})
     st.rerun()
