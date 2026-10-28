@@ -141,11 +141,13 @@ if uploaded_pdf:
             status_box.update(label="✅ PDF indexed", state="complete", expanded=False)
 
 st.sidebar.subheader("Past conversations")
+titles = load_titles()
 if not threads:
     st.sidebar.write("No past conversations yet.")
 else:
     for thread_id in threads:
-        if st.sidebar.button(str(thread_id), key=f"side-thread-{thread_id}"):
+        label = titles.get(str(thread_id), "New Chat")
+        if st.sidebar.button(label, key=f"side-thread-{thread_id}"):
             selected_thread = thread_id
 
 
@@ -226,6 +228,11 @@ if user_input:
             f"Document indexed: {doc_meta.get('filename')} "
             f"(chunks: {doc_meta.get('chunks')}, pages: {doc_meta.get('documents')})"
         )
+
+    if new_title:
+        st.rerun()
+
+           
 st.divider()
 
 if selected_thread:
@@ -249,8 +256,3 @@ if selected_thread:
     st.session_state["message_history"] = temp_messages
     st.session_state["ingested_docs"].setdefault(str(selected_thread), {})
     st.rerun()
-
-
-    # refresh so the new title shows in the sidebar
-    if new_title:
-        st.rerun()
